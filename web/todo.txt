@@ -1,0 +1,34 @@
+
+space key switches mouse to input mode
+ - add options window
+   - add sound options
+   - add key binding
+
+make enemy ship hunt you
+
+culling ? ( don't render everything each frame )
+
+laser faster
+
+
+collision detection ( laser & ship )
+
+explosions
+
+realistic ship flying
+
+make particles "follow you"
+
+minify before publish
+add copyright notice
+
+aim laser at mouse pos ( fake ship movement )
+
+add network
+add "space craft"
+
+done:
+cross hair cursor
+move requestAnimFrame
+add sound
+add music

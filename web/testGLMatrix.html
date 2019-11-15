@@ -1,0 +1,81 @@
+<html>
+<head>
+<script src="scripts/gl-matrix-min.js">
+</script>
+</head>
+<body id="body">
+
+<script>
+function printMatrix4(mat) {
+    var c, r, t;
+    t = document.createElement('table');
+    t.setAttribute('border', '1');
+    t.setAttribute('cellspacing', '0');
+	for( var i=0;i<4;i++)
+	{
+	    r = t.insertRow(-1); 
+		for( var j=0;j<4;j++)
+		{
+		    c = r.insertCell(-1);
+		    c.innerHTML = ''+mat[i*4+j].toFixed(2);
+		}
+	}
+    document.getElementById("body").appendChild(t);
+    document.getElementById("body").appendChild(document.createElement('br'));
+}
+function printQuat(quat) {
+    var c, r, t;
+    t = document.createElement('table');
+    t.setAttribute('border', '1');
+    t.setAttribute('cellspacing', '0');
+    r = t.insertRow(-1); 
+	for( var j=0;j<4;j++)
+	{
+	    c = r.insertCell(-1);
+	    c.innerHTML = ''+quat[j].toFixed(2);
+	}
+	document.getElementById("body").appendChild(t);
+    document.getElementById("body").appendChild(document.createElement('br'));
+}
+function mat4ToQuat(mat)
+{
+	return quat4.fromRotationMatrix(mat4.toMat3( mat));
+}
+
+function memcpy(dst, dstOffset, src, srcOffset, length) {
+	  var dstU8 = new Uint8Array(dst, dstOffset, length);
+	  var srcU8 = new Uint8Array(src, srcOffset, length);
+	  dstU8.set(srcU8);
+}
+	
+var myMat4 = mat4.lookAt( [0,0,0], [0,0,-1], [0,1,0]);
+printMatrix4( myMat4);
+printQuat( mat4ToQuat(myMat4));
+
+printQuat( mat4ToQuat(mat4.identity()));
+
+var qA = quat4.fromAxes([0, 0, 1], [1, 0, 0], [0, 1, 0]);
+printQuat( qA);
+quat4.length( qA) == 1;
+
+var qB = quat4.fromAxes([0, 0, 1], [1, 0, 0], [0, 1, 0]);
+
+var a = new Uint8Array(myMat4.buffer.byteLength+1);
+memcpy( a.buffer, 1, myMat4.buffer, 0, myMat4.buffer.byteLength)
+a[0] = 7;
+
+alert( a.byteLength);
+alert( a.subarray(1).byteLength);
+
+
+memcpy( myMat4.buffer, 0, a.buffer, 1, myMat4.buffer.byteLength)
+
+
+printMatrix4( myMat4);
+
+
+</script>
+
+
+</body>
+</html>

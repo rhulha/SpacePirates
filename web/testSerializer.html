@@ -1,0 +1,119 @@
+<html>
+<head>
+<script src="scripts/gl-matrix-min.js">
+</script>
+</head>
+
+<body>
+	<script>
+
+// http://updates.html5rocks.com/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+function ab2str(buf) {
+	return String.fromCharCode.apply(null, new Uint16Array(buf));
+}
+
+function str2ab(str) {
+	var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+	var bufView = new Uint16Array(buf);
+	for (var i=0, strLen=str.length; i<strLen; i++) {
+		bufView[i] = str.charCodeAt(i);
+	}
+	return buf;
+}
+
+function DataStream()
+{
+	this.contentArray = [];
+	this.byteCounter;
+	var tempFloat32Array = new Float32Array(1);
+}
+DataStream.prototype.pushInt32 = function(v)
+{
+	var temp = new Int32Array(1);
+	temp.[0] = v;
+	this.contentArray.push( temp.buffer);
+	this.byteCounter += temp.buffer.byteLength;
+}
+ 
+// format: keyByteLength:Uint16, keyStr:Uint16Array,
+//  if number: valueType=10:Uint16, value:Int32
+//  if float:  valueType=11:Uint16, value:Float32, 
+//  if ArrayBuffer: valueByteLength:Uint32, valueBytes:Uint8Array)  
+function serialize( obj)
+{
+	var tempArray = [];
+	var byteCounter = 0;
+	var tempFloat32Array = new Float32Array(1);
+	var tempInt32Array = new Int32Array(1);
+	
+	for( var key in obj)
+	{
+		if (!obj.hasOwnProperty(key))
+			continue;
+			
+		var value = obj[key];
+		var keyBuffer = str2ab( key);
+		tempArray.push(keyBuffer.byteLength);
+		byteCounter += 2;
+		tempArray.push(keyBuffer);
+		byteCounter += keyBuffer.byteLength;
+		
+		if( typeof(value) === "number")
+		{
+			var bufferToUse;
+			if( value % 1 === 0)
+			{
+				tempArray.push(10);
+				bufferToUse = tempInt32Array;
+			} else {
+				// floating point number
+				tempArray.push(11);
+				bufferToUse = tempFloat32Array;
+			}
+			byteCounter += 2;
+
+			bufferToUse[0] = value;
+			tempArray.push(bufferToUse.buffer);
+			byteCounter += bufferToUse.buffer.byteLength;
+
+		} else if( typeof(value) === "string") {
+			tempArray.push(20);
+			var valueBuffer = str2ab(value);
+			tempArray.push( valueBuffer.byteLength);
+			tempArray.push( valueBuffer);
+		} else if( typeof(value) === "boolean") {
+			tempArray.push(30);
+		} else if( typeof(value) === "object") {
+			tempArray.push(40);
+		} else {
+			alert( "unknown type: " + typeof(value));
+		}
+		
+	}
+	return obj;
+}
+
+function deserialize( obj)
+{
+	return obj;
+}
+
+var a = {
+		test1: "value1",
+		test2: mat4.identity(),
+		test3: 3.14,
+		test4: vec3.create(),
+		test5: true,
+}
+
+var s = serialize( a);
+
+var d = deserialize( s);
+
+
+alert( d.test1);
+
+
+</script>
+</body>
+</html>
